@@ -875,6 +875,10 @@ def load_model_from_hf(
     filtered_config = {k: v for k, v in model_config_dict.items() if k in valid_keys}
 
     exp_config = ExperimentConfig(**filtered_config)
+    base_model_override = os.environ.get("ROBOMETER_BASE_MODEL_PATH")
+    if base_model_override:
+        logger.info(f"Overriding base_model_id with local path: {base_model_override}")
+        exp_config.model.base_model_id = base_model_override
     # Use resolved_path for loading the actual model
     # Import here to avoid circular dependency with setup_utils
     from robometer.utils.setup_utils import setup_model_and_processor
