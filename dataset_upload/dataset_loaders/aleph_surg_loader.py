@@ -24,6 +24,16 @@ def _require_lerobot_dataset_class():
     return LeRobotDataset
 
 
+def _require_decode_video_frames():
+    try:
+        from lerobot.datasets.video_utils import decode_video_frames  # type: ignore
+    except Exception as e:  # pragma: no cover - depends on local environment
+        raise ImportError(
+            "Aleph Surg conversion requires Hugging Face LeRobot video utilities. Install lerobot and re-run."
+        ) from e
+    return decode_video_frames
+
+
 def _discover_session_dirs(dataset_path: str | Path) -> list[Path]:
     """Discover Aleph Surg session directories from a session, dataset, or aggregate root."""
     root = Path(dataset_path).expanduser()
@@ -49,6 +59,39 @@ def _discover_session_dirs(dataset_path: str | Path) -> list[Path]:
 
 def _session_dataset_id(session_dir: Path) -> str:
     return f"{session_dir.parent.name}/{session_dir.name}"
+
+
+def _session_has_camera_videos(session_dir: Path, camera_key: str) -> bool:
+    camera_dir = session_dir / "videos" / camera_key
+    return camera_dir.exists() and any(camera_dir.rglob("*.mp4"))
+
+
+def _filter_session_dirs_for_camera(
+    session_dirs: list[Path], camera_key: str, session_allowlist: list[str] | None = None
+) -> tuple[list[Path], dict[str, list[str]]]:
+    allowlist = set(session_allowlist or [])
+    session_id_to_path = {_session_dataset_id(path): path for path in session_dirs}
+
+    missing_from_root = sorted(allowlist - set(session_id_to_path))
+    if missing_from_root:
+        raise ValueError(
+            "Aleph Surg session_allowlist entries were not found under the dataset root: "
+            + ", ".join(missing_from_root)
+        )
+
+    selected_session_dirs: list[Path] = []
+    skipped = {"allowlist": [], "missing_camera": []}
+    for session_dir in session_dirs:
+        session_id = _session_dataset_id(session_dir)
+        if allowlist and session_id not in allowlist:
+            skipped["allowlist"].append(session_id)
+            continue
+        if not _session_has_camera_videos(session_dir, camera_key):
+            skipped["missing_camera"].append(session_id)
+            continue
+        selected_session_dirs.append(session_dir)
+
+    return selected_session_dirs, skipped
 
 
 def _select_session_split(session_dirs: list[Path], split_name: str, eval_ratio: float, split_seed: int) -> list[Path]:
@@ -99,13 +142,29 @@ class AlephSurgFrameLoader:
 
     def __call__(self) -> np.ndarray:
         dataset = _load_lerobot_dataset_cached(self.dataset_root)
+        decode_video_frames = _require_decode_video_frames()
+        dataset._ensure_hf_dataset_loaded()
         episode_meta = dataset.meta.episodes[self.episode_index]
         start_idx = int(episode_meta["dataset_from_index"])
         end_idx = int(episode_meta["dataset_to_index"])
+        from_timestamp = float(episode_meta[f"videos/{self.camera_key}/from_timestamp"])
+        video_path = dataset.root / dataset.meta.get_video_file_path(self.episode_index, self.camera_key)
+        if not video_path.exists():
+            raise FileNotFoundError(
+                f"Missing video for camera {self.camera_key} in episode {self.episode_index}: {video_path}"
+            )
+
+        shifted_timestamps: list[float] = []
+        for frame_idx in range(start_idx, end_idx):
+            frame_record = dataset.hf_dataset[frame_idx]
+            current_ts = frame_record["timestamp"]
+            current_ts = float(current_ts.item() if hasattr(current_ts, "item") else current_ts)
+            shifted_timestamps.append(from_timestamp + current_ts)
+
+        decoded_frames = decode_video_frames(video_path, shifted_timestamps, dataset.tolerance_s, dataset.video_backend)
 
         frames: list[np.ndarray] = []
-        for frame_idx in range(start_idx, end_idx):
-            frame = dataset[frame_idx][self.camera_key]
+        for frame in decoded_frames:
             frame_np = frame.numpy() if hasattr(frame, "numpy") else np.asarray(frame)
             if frame_np.dtype != np.uint8:
                 frame_np = (frame_np * 255).clip(0, 255).astype(np.uint8)
@@ -130,10 +189,19 @@ def load_aleph_surg_dataset(
     split_seed: int = 42,
     episode_indices: list[int] | None = None,
     data_source: str = "aleph_surg",
+    session_allowlist: list[str] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Load Aleph Surg trajectories grouped under a single full-task instruction."""
     session_dirs = _discover_session_dirs(dataset_path)
-    selected_session_dirs = _select_session_split(session_dirs, split_name=split_name, eval_ratio=eval_ratio, split_seed=split_seed)
+    camera_session_dirs, skipped_sessions = _filter_session_dirs_for_camera(
+        session_dirs, camera_key=camera_key, session_allowlist=session_allowlist
+    )
+    if not camera_session_dirs:
+        raise ValueError(f"No Aleph Surg sessions remain for camera {camera_key} under {dataset_path}")
+
+    selected_session_dirs = _select_session_split(
+        camera_session_dirs, split_name=split_name, eval_ratio=eval_ratio, split_seed=split_seed
+    )
 
     task_data: dict[str, list[dict[str, Any]]] = defaultdict(list)
     total_episodes = 0
@@ -171,4 +239,8 @@ def load_aleph_surg_dataset(
         f"Loaded {total_episodes} Aleph Surg episodes from {len(selected_session_dirs)} session(s) "
         f"for split={split_name} using camera {camera_key} as data_source={data_source}"
     )
+    if skipped_sessions["allowlist"]:
+        print(f"Skipped {len(skipped_sessions['allowlist'])} session(s) not present in session_allowlist")
+    if skipped_sessions["missing_camera"]:
+        print(f"Skipped {len(skipped_sessions['missing_camera'])} session(s) without video files for {camera_key}")
     return task_data

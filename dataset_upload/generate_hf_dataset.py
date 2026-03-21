@@ -112,6 +112,10 @@ class DatasetConfig:
     split_seed: int = field(default=42, metadata={"help": "Seed used for deterministic session splitting"})
     episode_indices: list[int] = field(default_factory=list, metadata={"help": "Episode indices to include"})
     data_source: str = field(default="", metadata={"help": "Data source name stored in the converted dataset"})
+    session_allowlist: list[str] = field(
+        default_factory=list,
+        metadata={"help": "Optional relative session IDs to include, e.g. dataset_root/session_dir"},
+    )
 
 
 @dataclass
@@ -1069,6 +1073,7 @@ def main(cfg: GenerateConfig):
             split_seed=cfg.dataset.split_seed,
             episode_indices=cfg.dataset.episode_indices or None,
             data_source=cfg.dataset.data_source or cfg.dataset.dataset_name,
+            session_allowlist=cfg.dataset.session_allowlist or None,
         )
         trajectories = flatten_task_data(task_data)
     else:
