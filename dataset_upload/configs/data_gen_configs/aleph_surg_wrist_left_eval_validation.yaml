@@ -1,0 +1,42 @@
+dataset:
+  dataset_path: "/mnt/aleph_surg_raw"
+  dataset_name: aleph_surg_wrist_left_eval_validation
+  camera_key: observation.images.WRIST_LEFT
+  task_description: perform vascular anastomosis
+  split_name: eval
+  eval_ratio: 0.15
+  split_seed: 42
+  episode_indices: []
+  data_source: aleph_surg_wrist_left
+  session_allowlist:
+    - twoarm-anastomosis-real-optim-01/20260218_144145
+    - twoarm-anastomosis-real-optim-14/20260219_195018
+    - twoarm-anastomosis-real-optim-15/20260219_201211
+    - twoarm-anastomosis-real-optim-16/20260219_211631
+    - twoarm-anastomosis-real-optim-26/20260303_124220
+    - twoarm-anastomosis-real-optim-26/20260303_130034
+    - twoarm-anastomosis-real-optim-26/20260303_130451
+    - twoarm-anastomosis-real-optim-27/20260303_132652
+    - twoarm-anastomosis-real-optim-27/20260303_134532
+    - twoarm-anastomosis-real-optim-27/20260303_143513
+    - twoarm-anastomosis-real-optim-28/20260303_151944
+    - twoarm-anastomosis-real-optim-28/20260303_153318
+    - twoarm-anastomosis-real-optim-28/20260303_155901
+    - twoarm-anastomosis-real-optim-28/20260303_162559
+    - twoarm-anastomosis-real-optim-30/20260303_195447
+    - twoarm-anastomosis-real-optim-30/20260303_203614
+    - twoarm-anastomosis-real-optim-30/20260303_204829
+
+output:
+  output_dir: ./robometer_dataset/aleph_surg/wrist_left/eval
+  max_trajectories: 4
+  max_frames: 32
+  shortest_edge_size: 240
+  use_video: true
+  fps: 10
+  center_crop: false
+  num_workers: 4
+
+hub:
+  push_to_hub: false
+  hub_repo_id: null
