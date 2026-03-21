@@ -1,0 +1,62 @@
+# @package _global_
+
+defaults:
+  - config
+  - _self_
+
+mode: "train"
+debug: false
+
+model:
+  use_peft: false
+  base_model_id: Qwen/Qwen3-VL-4B-Instruct
+  train_progress_head: true
+  train_preference_head: true
+  train_success_head: false
+  use_unsloth: true
+
+data:
+  max_frames_after_preprocessing: 32
+  max_frames: 8
+  min_frames_per_trajectory: 5
+  use_multi_image: false
+  dataloader_num_workers: 2
+  dataloader_persistent_workers: false
+
+custom_eval:
+  eval_types: []
+  policy_ranking: []
+  confusion_matrix: []
+  reward_alignment: []
+  quality_preference: []
+
+training:
+  load_from_checkpoint: aliangdw/Robometer-4B
+  output_dir: "./logs"
+  overwrite_output_dir: true
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 16
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  max_steps: 1000
+  save_strategy: "steps"
+  save_steps: 100
+  logging_steps: 5
+  evaluation_strategy: "steps"
+  eval_steps: 100
+  custom_eval_steps: 100
+  do_eval: true
+  run_default_eval: true
+  bf16: true
+  fp16: false
+
+logging:
+  log_to: []
+  save_best:
+    metric_names:
+      - eval_loss
+    greater_is_better: [false]
+    keep_top_k: 3
+    save_every: 100
+    upload_to_hub: false

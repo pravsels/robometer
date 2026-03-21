@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - aleph_surg_full_ft_wrist_left
+  - _self_
+
+data:
+  max_trajectories: 8
+
+training:
+  exp_name: aleph_surg_fulltask_wrist_left_validation
+  max_steps: 20
+  eval_steps: 10
+  custom_eval_steps: 10
+  save_steps: 10

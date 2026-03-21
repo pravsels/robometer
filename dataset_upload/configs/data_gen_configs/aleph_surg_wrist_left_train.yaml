@@ -1,0 +1,25 @@
+# Override `dataset.dataset_path` at runtime if your full Aleph Surg root lives elsewhere.
+dataset:
+  dataset_path: "/mnt/aleph_surg_raw"
+  dataset_name: aleph_surg_wrist_left_train
+  camera_key: observation.images.WRIST_LEFT
+  task_description: perform vascular anastomosis
+  split_name: train
+  eval_ratio: 0.15
+  split_seed: 42
+  episode_indices: []
+  data_source: aleph_surg_wrist_left
+
+output:
+  output_dir: ./robometer_dataset/aleph_surg/wrist_left/train
+  max_trajectories: null
+  max_frames: 32
+  shortest_edge_size: 240
+  use_video: true
+  fps: 10
+  center_crop: false
+  num_workers: 1
+
+hub:
+  push_to_hub: false
+  hub_repo_id: null

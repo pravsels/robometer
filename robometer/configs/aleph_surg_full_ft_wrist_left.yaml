@@ -1,0 +1,14 @@
+# @package _global_
+
+defaults:
+  - aleph_surg_full_ft_base
+  - _self_
+
+data:
+  train_datasets:
+    - "./robometer_dataset/aleph_surg/wrist_left/train/aleph_surg_wrist_left_train/train"
+  eval_datasets:
+    - "./robometer_dataset/aleph_surg/wrist_left/eval/aleph_surg_wrist_left_eval/eval"
+
+training:
+  exp_name: aleph_surg_fulltask_wrist_left

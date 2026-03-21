@@ -1,0 +1,24 @@
+train_datasets:
+  - "./robometer_dataset/aleph_surg/top_view/train/aleph_surg_top_view_train"
+
+train_subsets:
+  - ["train"]
+
+eval_datasets:
+  - "./robometer_dataset/aleph_surg/top_view/eval/aleph_surg_top_view_eval"
+
+eval_subsets:
+  - ["eval"]
+
+max_frames_for_preprocessing: 32
+video_frame_sampling: "uniform"
+num_proc: 1
+num_threads: 4
+force_reprocess: false
+cache_dir: /path/to/robometer/processed_datasets
+
+precompute_embeddings: false
+embeddings_cache_dir: "embeddings"
+dinov2_model: "facebook/dinov2-base"
+sentence_model: "sentence-transformers/all-MiniLM-L12-v2"
+embedding_batch_size: 64

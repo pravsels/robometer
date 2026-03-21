@@ -105,6 +105,13 @@ class DatasetConfig:
     dataset_path: str = field(default="", metadata={"help": "Path to the dataset"})
     dataset_name: str = field(default=None, metadata={"help": "Name of the dataset (defaults to dataset_type)"})
     exclude_wrist_cam: bool = field(default=False, metadata={"help": "Exclude wrist camera views (MIT Franka only)"})
+    camera_key: str = field(default="", metadata={"help": "Camera key for datasets with multiple camera streams"})
+    task_description: str = field(default="", metadata={"help": "Full-task instruction text"})
+    split_name: str = field(default="train", metadata={"help": "Dataset split name: train, eval, or all"})
+    eval_ratio: float = field(default=0.15, metadata={"help": "Session-level eval holdout ratio for dataset splitting"})
+    split_seed: int = field(default=42, metadata={"help": "Seed used for deterministic session splitting"})
+    episode_indices: list[int] = field(default_factory=list, metadata={"help": "Episode indices to include"})
+    data_source: str = field(default="", metadata={"help": "Data source name stored in the converted dataset"})
 
 
 @dataclass
@@ -1047,6 +1054,21 @@ def main(cfg: GenerateConfig):
         task_data = load_robofac_dataset(
             cfg.dataset.dataset_path,
             max_trajectories=cfg.output.max_trajectories,
+        )
+        trajectories = flatten_task_data(task_data)
+    elif "aleph_surg" in cfg.dataset.dataset_name.lower():
+        from dataset_upload.dataset_loaders.aleph_surg_loader import load_aleph_surg_dataset
+
+        print(f"Loading Aleph Surg dataset from: {cfg.dataset.dataset_path}")
+        task_data = load_aleph_surg_dataset(
+            dataset_path=cfg.dataset.dataset_path,
+            camera_key=cfg.dataset.camera_key,
+            task_description=cfg.dataset.task_description,
+            split_name=cfg.dataset.split_name,
+            eval_ratio=cfg.dataset.eval_ratio,
+            split_seed=cfg.dataset.split_seed,
+            episode_indices=cfg.dataset.episode_indices or None,
+            data_source=cfg.dataset.data_source or cfg.dataset.dataset_name,
         )
         trajectories = flatten_task_data(task_data)
     else:

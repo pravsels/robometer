@@ -1,0 +1,24 @@
+dataset:
+  dataset_path: "/mnt/aleph_surg_raw"
+  dataset_name: aleph_surg_back_view_eval
+  camera_key: observation.images.BACK_VIEW
+  task_description: perform vascular anastomosis
+  split_name: eval
+  eval_ratio: 0.15
+  split_seed: 42
+  episode_indices: []
+  data_source: aleph_surg_back_view
+
+output:
+  output_dir: ./robometer_dataset/aleph_surg/back_view/eval
+  max_trajectories: null
+  max_frames: 32
+  shortest_edge_size: 240
+  use_video: true
+  fps: 10
+  center_crop: false
+  num_workers: 1
+
+hub:
+  push_to_hub: false
+  hub_repo_id: null

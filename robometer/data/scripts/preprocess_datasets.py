@@ -23,7 +23,7 @@ from sentence_transformers import SentenceTransformer
 from transformers import AutoModel, AutoImageProcessor
 from PIL import Image
 
-from datasets import Dataset, DatasetDict, Video, load_dataset
+from datasets import Dataset, DatasetDict, Video, load_dataset, load_from_disk
 from robometer.utils.distributed import rank_0_print
 from robometer.utils.embedding_utils import compute_video_embeddings, compute_text_embeddings
 
@@ -898,7 +898,11 @@ class DatasetPreprocessor:
             return dataset
         else:
             # Load from local disk
-            dataset = load_dataset(dataset_path)
+            if os.path.isdir(dataset_path) and os.path.exists(os.path.join(dataset_path, "state.json")):
+                rank_0_print(f"Loading local save_to_disk dataset: {dataset_path}")
+                dataset = load_from_disk(dataset_path)
+            else:
+                dataset = load_dataset(dataset_path)
             return dataset
 
     def _show_preprocessed_datasets(self, all_datasets: list[str]):

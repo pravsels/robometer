@@ -1,0 +1,14 @@
+# @package _global_
+
+defaults:
+  - aleph_surg_full_ft_base
+  - _self_
+
+data:
+  train_datasets:
+    - "./robometer_dataset/aleph_surg/back_view/train/aleph_surg_back_view_train/train"
+  eval_datasets:
+    - "./robometer_dataset/aleph_surg/back_view/eval/aleph_surg_back_view_eval/eval"
+
+training:
+  exp_name: aleph_surg_fulltask_back_view
