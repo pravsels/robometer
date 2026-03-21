@@ -1,0 +1,28 @@
+dataset_path: "/mnt/aleph_surg_raw"
+camera_key: observation.images.BACK_VIEW
+task_description: "perform vascular anastomosis"
+split_name: train
+eval_ratio: 0.15
+split_seed: 42
+data_source: aleph_surg_back_view
+max_frames: 100
+cache_dir: "/mnt/processed_datasets"
+cache_key: "._robometer_dataset_aleph_surg_back_view_train_aleph_surg_back_view_train_train"
+session_allowlist:
+  - twoarm-anastomosis-real-optim-01/20260218_144145
+  - twoarm-anastomosis-real-optim-14/20260219_195018
+  - twoarm-anastomosis-real-optim-15/20260219_201211
+  - twoarm-anastomosis-real-optim-16/20260219_211631
+  - twoarm-anastomosis-real-optim-26/20260303_124220
+  - twoarm-anastomosis-real-optim-26/20260303_130034
+  - twoarm-anastomosis-real-optim-26/20260303_130451
+  - twoarm-anastomosis-real-optim-27/20260303_132652
+  - twoarm-anastomosis-real-optim-27/20260303_134532
+  - twoarm-anastomosis-real-optim-27/20260303_143513
+  - twoarm-anastomosis-real-optim-28/20260303_151944
+  - twoarm-anastomosis-real-optim-28/20260303_153318
+  - twoarm-anastomosis-real-optim-28/20260303_155901
+  - twoarm-anastomosis-real-optim-28/20260303_162559
+  - twoarm-anastomosis-real-optim-30/20260303_195447
+  - twoarm-anastomosis-real-optim-30/20260303_203614
+  - twoarm-anastomosis-real-optim-30/20260303_204829
