@@ -5,14 +5,13 @@ Bypasses generate_hf_dataset + preprocess_datasets by reading LeRobot MP4s
 with PyAV and writing the RoboMeter preprocessing cache directly.
 """
 
-from __future__ import annotations
-
 import datetime
 import json
 import os
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import List
 
 import av
 import numpy as np
@@ -37,7 +36,7 @@ class DirectCacheConfig:
     split_name: str = "train"
     eval_ratio: float = 0.15
     split_seed: int = 42
-    session_allowlist: list[str] = field(default_factory=list)
+    session_allowlist: List[str] = field(default_factory=list)
     data_source: str = ""
     max_frames: int = 100
     cache_dir: str = ""
