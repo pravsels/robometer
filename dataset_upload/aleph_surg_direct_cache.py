@@ -2,7 +2,7 @@
 """
 Direct-to-cache converter for Aleph Surg datasets.
 Bypasses generate_hf_dataset + preprocess_datasets by reading LeRobot MP4s
-with decord and writing the RoboMeter preprocessing cache directly.
+with PyAV and writing the RoboMeter preprocessing cache directly.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import decord
+import av
 import numpy as np
 from datasets import Dataset, Features, Sequence, Value
 from pyrallis import wrap
@@ -67,16 +67,33 @@ def _load_session_video_paths(
 
 
 def _sample_frames(video_path: Path, max_frames: int) -> np.ndarray:
-    """Sample up to *max_frames* uniformly from a video file using decord."""
-    vr = decord.VideoReader(str(video_path), num_threads=1)
-    total = len(vr)
+    """Sample up to *max_frames* uniformly from a video file using PyAV."""
+    container = av.open(str(video_path))
+    stream = container.streams.video[0]
+    total = stream.frames
+    if total <= 0:
+        all_frames = [f.to_ndarray(format="rgb24") for f in container.decode(stream)]
+        container.close()
+        total = len(all_frames)
+        if total <= max_frames:
+            return np.stack(all_frames)
+        indices = {int(i * total / max_frames) for i in range(max_frames)}
+        selected = [f for i, f in enumerate(all_frames) if i in indices]
+        return np.stack(selected)
+
     if total <= max_frames:
-        indices = list(range(total))
+        indices = set(range(total))
     else:
-        indices = [int(i * total / max_frames) for i in range(max_frames)]
-    frames = vr.get_batch(indices).asnumpy()  # (T, H, W, C) uint8
-    del vr
-    return frames
+        indices = {int(i * total / max_frames) for i in range(max_frames)}
+
+    frames = []
+    for i, frame in enumerate(container.decode(stream)):
+        if i in indices:
+            frames.append(frame.to_ndarray(format="rgb24"))
+        if len(frames) == len(indices):
+            break
+    container.close()
+    return np.stack(frames)
 
 
 def _build_index_mappings(
