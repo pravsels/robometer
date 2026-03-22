@@ -138,6 +138,12 @@ def main(cfg: DirectCacheConfig):
     if not cache_key:
         raise ValueError("cache_key is required")
 
+    cache_root = os.path.join(cache_dir, cache_key)
+    info_path = os.path.join(cache_root, "dataset_info.json")
+    if os.path.isfile(info_path):
+        print(f"Cache already exists at {cache_root} (found {info_path}), skipping conversion.")
+        return
+
     # --- discover, filter, split sessions ---
     print(f"Discovering sessions under {dataset_path} ...")
     session_dirs = _discover_session_dirs(dataset_path)
@@ -174,7 +180,6 @@ def main(cfg: DirectCacheConfig):
     del lang_model
 
     # --- create output directories ---
-    cache_root = os.path.join(cache_dir, cache_key)
     frames_dir = os.path.join(cache_root, "frames")
     os.makedirs(frames_dir, exist_ok=True)
     os.makedirs(os.path.join(cache_root, "processed_dataset"), exist_ok=True)
@@ -292,7 +297,6 @@ def main(cfg: DirectCacheConfig):
         "cache_timestamp": str(datetime.datetime.now()),
         "config_hash": "direct_cache",
     }
-    info_path = os.path.join(cache_root, "dataset_info.json")
     with open(info_path, "w") as f:
         json.dump(dataset_info, f, indent=2)
     print(f"Saved dataset_info.json -> {info_path}")
