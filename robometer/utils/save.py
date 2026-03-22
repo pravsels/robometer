@@ -82,7 +82,7 @@ def update_cfg_with_pretrained_ckpt(
         return
 
     # Replace entire model config except use_peft (keep current run's choice); only sync progress-loss + use_multi_image for loss and data
-    model_names = {f.name for f in fields(ModelConfig)} - {"use_peft"}
+    model_names = {f.name for f in fields(ModelConfig)} - {"use_peft", "use_unsloth"}
     progress_loss_fields = {"progress_loss_type", "progress_discrete_bins"}
     loss_names = progress_loss_fields & {f.name for f in fields(LossConfig)}
     data_sync_fields = progress_loss_fields | {"use_multi_image", "use_per_frame_progress_token"} 
