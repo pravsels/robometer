@@ -5,6 +5,7 @@ defaults:
   - _self_
 
 data:
+  max_frames: 4
   train_datasets:
     - "./robometer_dataset/aleph_surg/wrist_left/train/aleph_surg_wrist_left_train/train"
   eval_datasets:
