@@ -12,3 +12,4 @@ data:
 
 training:
   exp_name: aleph_surg_fulltask_wrist_right
+  gradient_checkpointing: true
