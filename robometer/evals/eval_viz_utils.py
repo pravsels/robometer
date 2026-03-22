@@ -9,7 +9,10 @@ import logging
 import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
-import decord
+try:
+    import decord
+except ImportError:
+    decord = None
 
 logger = logging.getLogger(__name__)
 
