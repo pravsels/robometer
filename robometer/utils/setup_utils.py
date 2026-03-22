@@ -4,8 +4,6 @@ Shared setup utilities for RBM training.
 This file contains setup functions that can be reused across different training scripts.
 """
 
-from unsloth import FastVisionModel
-
 import re
 import os
 from pathlib import Path
@@ -359,6 +357,8 @@ def _load_base_model_with_unsloth(
     Returns:
         Tuple of (base_model, tokenizer)
     """
+    from unsloth import FastVisionModel
+
     logger.info("Using Unsloth for faster training with Qwen model")
 
     # Load model with unsloth
