@@ -13,7 +13,7 @@ model:
   train_progress_head: true
   train_preference_head: true
   train_success_head: false
-  use_unsloth: true
+  use_unsloth: false
 
 data:
   max_frames_after_preprocessing: 100
