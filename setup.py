@@ -17,7 +17,7 @@ setup(
     description="Robometer: Scaling General-purpose Robotic Reward Models via Trajectory Comparisons",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/aliang8/robometer",
+    url="https://github.com/robometer/robometer",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",

@@ -3,7 +3,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2603.02115-b31b1b.svg)](https://arxiv.org/abs/2603.02115)
 [![GitHub](https://img.shields.io/badge/GitHub-robometer-181717?logo=github)](https://github.com/robometer/robometer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Model](https://img.shields.io/badge/Model-FFD21E?logo=huggingface)](https://huggingface.co/aliangdw/Robometer-4B)
+[![Model](https://img.shields.io/badge/Model-FFD21E?logo=huggingface)](https://huggingface.co/robometer/Robometer-4B)
 [![Dataset](https://img.shields.io/badge/Dataset-RBM--1M-FFD21E?logo=huggingface)](https://huggingface.co/datasets/)
 [![RBM-1M Visualizer](https://img.shields.io/badge/Visualizer-RBM--FFD21E?logo=huggingface)](https://huggingface.co/spaces/rewardfm/visualizer)
 [![RewardEval UI](https://img.shields.io/badge/%20RewardEval%20UI-FFD21E?logo=huggingface)](https://huggingface.co/spaces/rewardfm/rewardeval_ui)
@@ -114,12 +114,10 @@ To run the model locally (loads checkpoint from Hugging Face, no server):
 
 ```bash
 uv run python scripts/example_inference_local.py \
-  --model-path aliangdw/Robometer-4B \
+  --model-path robometer/Robometer-4B \
   --video /path/to/video.mp4 \
   --task "your task description"
 ```
-
-Use `aliangdw/Robometer-4B-LIBERO` for the LIBERO-finetuned model.
 
 ---
 
@@ -128,27 +126,32 @@ Use `aliangdw/Robometer-4B-LIBERO` for the LIBERO-finetuned model.
 ### Training
 
 **Train on RBM-1M in-distribution and evaluate on RBM-1M-OOD**
+First, modify `robometer/configs/config.yaml`'s `wandb_entity` flag to your WandB entity. To disable WandB logging, remove "wandb" from the `log_to` list in the config yaml file.
+See more flags in the config file (e.g., batch size, learning rates, etc.)
 
 ```bash
-uv run accelerate launch --config_file robometer/configs/distributed/fsdp.yaml train.py \
+uv run accelerate launch --config_file robometer/configs/distributed/fsdp.yaml --num_processes=N_GPUS_YOU_HAVE train.py \
   data.train_datasets=[rbm-1m-id] \
   data.eval_datasets=[rbm-1m-ood] \
-  data.max_frames=4 \
+  data.max_frames=8 \
   model.train_progress_head=true \
   model.train_preference_head=true \
-  training.max_steps=5000 \
+  training.max_steps=15000 \
   custom_eval.reward_alignment=[rbm-1m-ood] \
   custom_eval.policy_ranking=[rbm-1m-ood] \
-  custom_eval.confusion_matrix=[rbm-1m-ood]
+  custom_eval.confusion_matrix=[rbm-1m-ood] \
+  logging.save_best.metric_names=[eval_p_rank/kendall_last_utd_so101_clean_top,eval_p_rank/kendall_last_usc_xarm,eval_p_rank/kendall_last_usc_franka,eval_p_rank/kendall_last_rfm_new_mit_franka_nowrist,eval_p_rank/kendall_last_usc_trossen] \
+  logging.save_best.greater_is_better=[True,True,True,True,True]
 ```
 
 **LIBERO: train on 10 / object / spatial / goal, test on 90.**
+First, modify `robometer/configs/config.yaml`'s `wandb_entity` flag to your WandB entity. To disable WandB logging, remove "wandb" from the `log_to` list in the config yaml file.
 
 ```bash
 uv run accelerate launch --config_file robometer/configs/distributed/fsdp.yaml train.py \
   data.train_datasets=[libero_pi0] \
-  data.eval_datasets=[mw] \
-  data.max_frames=4 \
+  data.eval_datasets=[libero_pi0] \
+  data.max_frames=8 \
   model.train_progress_head=true \
   model.train_preference_head=true \
   training.max_steps=5000 \
@@ -165,7 +168,7 @@ See `robometer/configs/experiment_configs.py` for more config options.
 Preprocess a new dataset, LoRA fine-tune from **Robometer-4B** on your own data, upload the model to the Hub, and run inference:
 
 - **Preprocessing:** Add your dataset to the preprocess config and run the preprocessor; for raw videos (e.g. [MINT-SJTU/RoboFAC-dataset](https://huggingface.co/datasets/MINT-SJTU/RoboFAC-dataset)), convert to RBM format first via `dataset_upload`, then preprocess.
-- **Fine-tuning:** Set `model.use_peft=true` and `training.resume_from_checkpoint=aliangdw/Robometer-4B`, then train on your dataset.
+- **Fine-tuning:** Set `model.use_peft=true` and `training.resume_from_checkpoint=robometer/Robometer-4B`, then train on your dataset.
 - **Upload & inference:** Use `robometer/utils/upload_to_hub.py` to push checkpoints; run `scripts/example_inference_local.py` with your Hub model.
 
 Full step-by-step: **[FINETUNE_ROBOMETER.md](FINETUNE_ROBOMETER.md)**.
@@ -185,13 +188,13 @@ Run RBM with `reward_model=rbm`; override `model_path` and `custom_eval.*` as ne
 ```bash
 uv run python robometer/evals/run_baseline_eval.py \
     reward_model=rbm \
-    model_path=aliangdw/Robometer-4B \
+    model_path=robometer/Robometer-4B \
     custom_eval.eval_types=[reward_alignment] \
     custom_eval.reward_alignment=[rbm-1m-id,rbm-1m-ood] \
     custom_eval.use_frame_steps=true \
     custom_eval.subsample_n_frames=5 \
     custom_eval.reward_alignment_max_trajectories=30 \
-    max_frames=4 \
+    max_frames=8 \
     model_config.batch_size=32
 ```
 
@@ -200,12 +203,12 @@ uv run python robometer/evals/run_baseline_eval.py \
 ```bash
 uv run python robometer/evals/run_baseline_eval.py \
     reward_model=rbm \
-    model_path=aliangdw/Robometer-4B \
+    model_path=robometer/Robometer-4B \
     custom_eval.eval_types=[policy_ranking] \
     custom_eval.policy_ranking=[rbm-1m-ood] \
     custom_eval.use_frame_steps=false \
     custom_eval.num_examples_per_quality_pr=1000 \
-    max_frames=4 \
+    max_frames=8 \
     model_config.batch_size=32
 ```
 
@@ -214,10 +217,10 @@ uv run python robometer/evals/run_baseline_eval.py \
 ```bash
 uv run python robometer/evals/run_baseline_eval.py \
     reward_model=rbm \
-    model_path=aliangdw/Robometer-4B \
+    model_path=robometer/Robometer-4B \
     custom_eval.eval_types=[confusion_matrix] \
     custom_eval.confusion_matrix=[[aliangdw_usc_franka_policy_ranking_usc_franka_policy_ranking,jesbu1_utd_so101_clean_policy_ranking_top_utd_so101_clean_policy_ranking_top,aliangdw_usc_xarm_policy_ranking_usc_xarm_policy_ranking]] \
-    max_frames=4 \
+    max_frames=8 \
     model_config.batch_size=32
 ```
 

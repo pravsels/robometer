@@ -25,7 +25,7 @@ uv run python robometer/evals/run_baseline_eval.py \
     max_frames=8 \
     model_config.batch_size=64
 
-# Robo-Dopamine (run with venv Python so vLLM is found; do not use uv run)
+# Robo-Dopamine 3B (run with venv Python so vLLM is found; do not use uv run)
 .venv-robodopamine/bin/python robometer/evals/run_baseline_eval.py \
     reward_model=robodopamine \
     model_path=tanhuajie2001/Robo-Dopamine-GRM-3B \
@@ -33,6 +33,25 @@ uv run python robometer/evals/run_baseline_eval.py \
     custom_eval.confusion_matrix=[[aliangdw_usc_franka_policy_ranking_usc_franka_policy_ranking,jesbu1_utd_so101_clean_policy_ranking_top_utd_so101_clean_policy_ranking_top,aliangdw_usc_xarm_policy_ranking_usc_xarm_policy_ranking]] \
     max_frames=64 \
     model_config.batch_size=1
+
+# Robo-Dopamine 8B
+.venv-robodopamine/bin/python robometer/evals/run_baseline_eval.py \
+    reward_model=robodopamine \
+    model_path=tanhuajie2001/Robo-Dopamine-GRM-2.0-8B-Preview \
+    model_config.eval_mode=forward \
+    custom_eval.eval_types=[confusion_matrix] \
+    custom_eval.confusion_matrix=[[aliangdw_usc_franka_policy_ranking_usc_franka_policy_ranking,jesbu1_utd_so101_clean_policy_ranking_top_utd_so101_clean_policy_ranking_top,aliangdw_usc_xarm_policy_ranking_usc_xarm_policy_ranking]] \
+    max_frames=64 \
+    model_config.batch_size=1
+
+# TOPReward (Qwen3-VL-8B, zero-shot token-probability rewards)
+uv run python robometer/evals/run_baseline_eval.py \
+    reward_model=topreward \
+    model_path="Qwen/Qwen3-VL-8B-Instruct" \
+    custom_eval.eval_types=[confusion_matrix] \
+    custom_eval.confusion_matrix=[[aliangdw_usc_franka_policy_ranking_usc_franka_policy_ranking,jesbu1_utd_so101_clean_policy_ranking_top_utd_so101_clean_policy_ranking_top,aliangdw_usc_xarm_policy_ranking_usc_xarm_policy_ranking]] \
+    max_frames=64 \
+    model_config.num_prefix_samples=15
 
 # VLAC
 uv run --extra vlac --python .venv-vlac/bin/python python robometer/evals/run_baseline_eval.py \
@@ -64,7 +83,7 @@ uv run python robometer/evals/run_baseline_eval.py \
 # without koch
 uv run python robometer/evals/run_baseline_eval.py \
     reward_model=rbm \
-    model_path=aliangdw/Robometer-4B \
+    model_path=robometer/Robometer-4B \
     custom_eval.eval_types=[confusion_matrix] \
     custom_eval.confusion_matrix=[[aliangdw_usc_franka_policy_ranking_usc_franka_policy_ranking,jesbu1_utd_so101_clean_policy_ranking_top_utd_so101_clean_policy_ranking_top,aliangdw_usc_xarm_policy_ranking_usc_xarm_policy_ranking]] \
     max_frames=8 \
@@ -73,7 +92,7 @@ uv run python robometer/evals/run_baseline_eval.py \
 # on all
 uv run python robometer/evals/run_baseline_eval.py \
     reward_model=rbm \
-    model_path=aliangdw/Robometer-4B \
+    model_path=robometer/Robometer-4B \
     custom_eval.eval_types=[confusion_matrix] \
     custom_eval.confusion_matrix=[[aliangdw_usc_franka_policy_ranking_usc_franka_policy_ranking,jesbu1_utd_so101_clean_policy_ranking_top_utd_so101_clean_policy_ranking_top,aliangdw_usc_xarm_policy_ranking_usc_xarm_policy_ranking,jesbu1_usc_koch_p_ranking_rfm_usc_koch_p_ranking_all]] \
     max_frames=8 \

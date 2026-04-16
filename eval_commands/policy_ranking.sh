@@ -9,7 +9,7 @@ uv run python robometer/evals/run_baseline_eval.py \
     max_frames=8 \
     model_config.batch_size=64
 
-# Robo-Dopamine (run with venv Python so vLLM is found; do not use uv run)
+# Robo-Dopamine 3B (run with venv Python so vLLM is found; do not use uv run)
 .venv-robodopamine/bin/python robometer/evals/run_baseline_eval.py \
     reward_model=robodopamine \
     model_path=tanhuajie2001/Robo-Dopamine-GRM-3B \
@@ -19,6 +19,29 @@ uv run python robometer/evals/run_baseline_eval.py \
     custom_eval.num_examples_per_quality_pr=1000 \
     max_frames=64 \
     model_config.batch_size=1
+
+# Robo-Dopamine 8B
+.venv-robodopamine/bin/python robometer/evals/run_baseline_eval.py \
+    reward_model=robodopamine \
+    model_path=tanhuajie2001/Robo-Dopamine-GRM-2.0-8B-Preview \
+    model_config.eval_mode=forward \
+    custom_eval.eval_types=[policy_ranking] \
+    custom_eval.policy_ranking=[rbm-1m-ood] \
+    custom_eval.use_frame_steps=false \
+    custom_eval.num_examples_per_quality_pr=1000 \
+    max_frames=64 \
+    model_config.batch_size=1
+
+# TOPReward (Qwen3-VL-8B, zero-shot token-probability rewards)
+uv run python robometer/evals/run_baseline_eval.py \
+    reward_model=topreward \
+    model_path="Qwen/Qwen3-VL-8B-Instruct" \
+    custom_eval.eval_types=[policy_ranking] \
+    custom_eval.policy_ranking=[rbm-1m-ood] \
+    custom_eval.use_frame_steps=false \
+    custom_eval.num_examples_per_quality_pr=1000 \
+    max_frames=64 \
+    model_config.num_prefix_samples=15
 
 # VlAC
 uv run --extra vlac --python .venv-vlac/bin/python robometer/evals/run_baseline_eval.py \
@@ -45,7 +68,7 @@ uv run python robometer/evals/run_baseline_eval.py \
 # Robometer-4B
 uv run python robometer/evals/run_baseline_eval.py \
     reward_model=rbm \
-    model_path=aliangdw/Robometer-4B \
+    model_path=robometer/Robometer-4B \
     custom_eval.eval_types=[policy_ranking] \
     custom_eval.policy_ranking=[rbm-1m-ood] \
     custom_eval.use_frame_steps=false \
@@ -53,7 +76,7 @@ uv run python robometer/evals/run_baseline_eval.py \
     max_frames=8 \
     model_config.batch_size=32
 
-# Robometer-4B Libero Ablation
+# Robometer-4B Libero Ablation (only trained on LIBERO datasets, so don't recommend using this model for actual reward modeling.)
 uv run python robometer/evals/run_baseline_eval.py \
     reward_model=rbm \
     model_path=aliangdw/Robometer-4B-LIBERO \
@@ -61,5 +84,5 @@ uv run python robometer/evals/run_baseline_eval.py \
     custom_eval.policy_ranking=[libero_pi0] \
     custom_eval.use_frame_steps=false \
     custom_eval.num_examples_per_quality_pr=20 \
-    max_frames=4 \
+    max_frames=8 \
     model_config.batch_size=32

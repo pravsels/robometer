@@ -43,7 +43,21 @@ Training needs a **preprocessed** cache from a HuggingFace dataset in RBM format
 
 **Other datasets:** RBM-style Hub datasets: set `train_datasets`/`train_subsets` and `ROBOMETER_DATASET_PATH` in the preprocess config, then run step 4. Raw data: add a loader (see [CustomDataset.md](dataset_upload/dataset_guides/CustomDataset.md)).
 
----
+
+## IMPORTANT STEP: Add a success / progress cutoff to `dataset_success_cutoff.txt`
+
+Add a success / progress cutoff to `dataset_success_cutoff.txt` for your dataset.
+This is used to threshold progress and success for each trajectory.
+
+For example, if your trajectories have 10 frames and most of them are successful by frame 9, then you should set the cutoff to 0.9.
+This is very important to ensure well-calibrated progress and success predictions.
+We need this because most teleoperated datasets don't have consistent trajectory endpoints, and computing linear progress and success labels based on assuming the endpoint is at the last frame is not reliable.
+
+Modify: `robometer/data/dataset_success_cutoff.txt` to add your cutoff corresponding to the name of the processed `data_source` in the preprocessing config you made in the above steps.
+
+### Again, *VERY IMPORTANT* to ensure well-calibrated progress and success predictions.
+
+If your dataset is simulation, it's most likely that you will have a dataset cutoff of 1.0 because you can get perfect trajectory ends in simulation.
 
 ## 2. LoRA fine-tuning
 
@@ -58,8 +72,8 @@ uv run python train.py \
   model.train_progress_head=true \
   model.train_preference_head=true \
   data.train_datasets=[aliangdw_robofac_rbm_robofac] \
-  data.eval_datasets=[mw] \
-  training.load_from_checkpoint=aliangdw/Robometer-4B \
+  data.eval_datasets=[aliangdw_robofac_rbm_robofac] \
+  training.load_from_checkpoint=robometer/Robometer-4B \
   training.per_device_train_batch_size=8 \
   training.learning_rate=2e-5 \
   training.warmup_ratio=0.1 \
@@ -89,14 +103,14 @@ Load the same checkpoint but train the full model (no LoRA). Uses more memory; l
 ```bash
 export ROBOMETER_PROCESSED_DATASETS_PATH=/path/to/your/processed_datasets
 
-uv run python train.py \
+uv run accelerate launch --config_file robometer/configs/distributed/fsdp.yaml --num_processes=N_GPUS_YOU_HAVE train.py \
   model.base_model_id=Qwen/Qwen3-VL-4B-Instruct \
   model.use_peft=false \
   model.train_progress_head=true \
   model.train_preference_head=true \
   data.train_datasets=[aliangdw_robofac_rbm_robofac] \
   data.eval_datasets=[aliangdw_robofac_rbm_robofac] \
-  training.load_from_checkpoint=aliangdw/Robometer-4B \
+  training.load_from_checkpoint=robometer/Robometer-4B \
   training.per_device_train_batch_size=8 \
   training.learning_rate=2e-5 \
   training.warmup_ratio=0.1 \
@@ -151,7 +165,7 @@ For comparison, run the same `train.py` on the same data but **without** loading
 ```bash
 export ROBOMETER_PROCESSED_DATASETS_PATH=/path/to/your/processed_datasets
 
-uv run python train.py \
+uv run accelerate launch --config_file robometer/configs/distributed/fsdp.yaml --num_processes=N_GPUS_YOU_HAVE train.py \
   model.base_model_id=Qwen/Qwen3-VL-4B-Instruct \
   model.use_peft=true \
   model.train_progress_head=true \
@@ -173,7 +187,7 @@ uv run python train.py \
   training.eval_steps=50 \
   training.custom_eval_steps=50
 
-uv run python train.py \
+uv run accelerate launch --config_file robometer/configs/distributed/fsdp.yaml --num_processes=N_GPUS_YOU_HAVE train.py \
   model.base_model_id=Qwen/Qwen3-VL-4B-Instruct \
   model.use_peft=false \
   model.train_progress_head=true \
