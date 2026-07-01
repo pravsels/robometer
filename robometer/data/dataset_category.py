@@ -187,7 +187,7 @@ DATASET_MAP = {
             "jesbu1_utd_so101_clean_policy_ranking_wrist_utd_so101_clean_policy_ranking_wrist",
             "jesbu1_usc_koch_p_ranking_rfm_usc_koch_p_ranking_all",
             # "jesbu1_roboreward_rfm_roboreward_test",
-            "jesbu1_roboreward_rfm_roboreward_high_res_test",
+            "jesbu1_roboreward_rfm_roboreward_test",
             # ["abraranwar_libero_rfm_libero256_10", "ykorkmaz_libero_failure_rfm_libero_10_failure"],
         ]
     },
@@ -220,7 +220,7 @@ DATASET_MAP = {
             "jesbu1_auto_eval_rfm_auto_eval_rfm",
             "jesbu1_racer_rfm_racer_train",
             "jesbu1_roboarena_0825_rfm_roboarena",
-            "jesbu1_roboreward_rfm_roboreward_high_res_train",
+            "jesbu1_roboreward_rfm_roboreward_train"
             # "jesbu1_roboreward_rfm_roboreward_train",
         ],
         "eval": [
@@ -277,6 +277,24 @@ DATASET_MAP = {
                 "abraranwar_libero_rfm_libero256_10",
                 "ykorkmaz_libero_failure_rfm_libero_10_failure",
             ],
+        ],
+    },
+    "libero_all": {
+        "train": [
+            "abraranwar_libero_rfm_libero256_10",
+            "abraranwar_libero_rfm_libero256_object",
+            "abraranwar_libero_rfm_libero256_spatial",
+            "abraranwar_libero_rfm_libero256_goal",
+            "ykorkmaz_libero_failure_rfm_libero_10_failure",
+            "ykorkmaz_libero_failure_rfm_libero_object_failure",
+            "ykorkmaz_libero_failure_rfm_libero_spatial_failure",
+            "ykorkmaz_libero_failure_rfm_libero_goal_failure",
+            "abraranwar_libero_rfm_libero256_90",
+            "ykorkmaz_libero_failure_rfm_libero_90_failure",
+        ],
+        "eval": [
+                "abraranwar_libero_rfm_libero256_90",
+                "ykorkmaz_libero_failure_rfm_libero_90_failure",
         ],
     },
     "rbm-1m-id": {
@@ -336,7 +354,7 @@ DATASET_MAP = {
             "jesbu1_auto_eval_rfm_auto_eval_rfm",
             "jesbu1_racer_rfm_racer_train",
             "jesbu1_roboarena_0825_rfm_roboarena",
-            "jesbu1_roboreward_rfm_roboreward_high_res_train",
+            "jesbu1_roboreward_rfm_roboreward_train",
             # paired
             "jesbu1_h2r_rfm_h2r",
             "jesbu1_motif_rfm_motif_rfm",

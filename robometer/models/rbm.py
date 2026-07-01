@@ -87,6 +87,8 @@ class RBM(PredictionHeadsMixin, PreTrainedModel):
         self.preference_head = self.preference_head.to(dtype=self.model_dtype)
         self.success_head = self.success_head.to(dtype=self.model_dtype)
 
+        self.all_tied_weights_keys = {}
+
         self.processor = processor
         self.tokenizer = tokenizer
         self.model_config = model_config
